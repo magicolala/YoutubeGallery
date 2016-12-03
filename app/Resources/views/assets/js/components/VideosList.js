@@ -6,7 +6,7 @@ var Video = require('./Video.js');
 var VideosList = React.createClass({
     render: function () {
         return (
-            <div className="row text-center">
+            <div className="row text-center row-videolist">
                 {
                     this.props.videos.map(function (video, index) {
                         return (
