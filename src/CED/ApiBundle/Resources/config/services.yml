@@ -1,0 +1,4 @@
+services:
+#    ced_api.example:
+#        class: CED\ApiBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]

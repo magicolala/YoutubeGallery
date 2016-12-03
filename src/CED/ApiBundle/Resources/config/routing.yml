@@ -1,0 +1,7 @@
+#ced_api_homepage:
+#    path:     /
+#    defaults: { _controller: CEDApiBundle:Default:index }
+
+api_savevideo:
+    path: /api/save_video
+    defaults: { _controller: CEDApiBundle:Api:saveVideo }

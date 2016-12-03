@@ -1,0 +1,7 @@
+ced_api:
+    resource: "@CEDApiBundle/Resources/config/routing.yml"
+    prefix:   /
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation
