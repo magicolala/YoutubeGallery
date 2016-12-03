@@ -29,9 +29,9 @@ class Video
     private $title;
 
     /**
-     * @var int
+     * @var string
      *
-     * @ORM\Column(name="video_id", type="integer", nullable=true)
+     * @ORM\Column(name="video_id", type="string", length=255, nullable=true)
      */
     private $videoId;
 

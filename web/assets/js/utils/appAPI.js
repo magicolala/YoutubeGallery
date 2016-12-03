@@ -11,7 +11,23 @@ module.exports = {
 			crossDomain: true,
 		})
 		.done(function( msg ) {
-			alert( "Data Saved: " + msg );
+			console.log( "Data Saved " + msg );
 		});
-	}
+	},
+
+    getVideos: function() {
+        $.get( "http://localhost/youtubegalleryapi/web/app_dev.php/api/get_videos", function(data) {
+            var videos = [];
+            console.log(data);
+            data.forEach(function(data) {
+                var video = {
+                    title: data.title,
+                    video_id: data.video_id,
+                    description: data.description
+                }
+                videos.push(video);
+                AppActions.receiveVideos(videos);
+            });
+        });
+    }
 }

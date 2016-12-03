@@ -5,3 +5,7 @@
 api_savevideo:
     path: /api/save_video
     defaults: { _controller: CEDApiBundle:Api:saveVideo }
+
+api_getvideos:
+    path: /api/get_videos
+    defaults: { _controller: CEDApiBundle:Api:getVideos }

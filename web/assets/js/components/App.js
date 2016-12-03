@@ -2,6 +2,7 @@ var React = require('react');
 var AppActions = require('../actions/AppActions.js');
 var AppStore = require('../stores/AppStore.js');
 var AddForm = require('./AddForm.js');
+var VideoList = require('./VideosList.js');
 
 function getAppState(){
 	return {
@@ -27,6 +28,7 @@ var App = React.createClass({
 		return(
 			<div>
 				<AddForm />
+				<VideoList videos = {this.state.videos} />
 			</div>
 		);
 	},

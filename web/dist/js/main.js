@@ -19763,12 +19763,18 @@ var AppActions = {
 			actionType: AppConstants.SAVE_VIDEO,
 			video: video
 		});
-	}
+	},
+	receiveVideos: function(videos) {
+        AppDispatcher.handleViewAction({
+            actionType: AppConstants.RECEIVE_VIDEOS,
+            videos: videos
+        });
+    }
 }
 
 module.exports = AppActions;
 
-},{"../constants/AppConstants":167,"../dispatcher/AppDispatcher":168}],165:[function(require,module,exports){
+},{"../constants/AppConstants":169,"../dispatcher/AppDispatcher":170}],165:[function(require,module,exports){
 var React = require('react');
 var AppActions = require('../actions/AppActions.js');
 
@@ -19816,6 +19822,7 @@ var React = require('react');
 var AppActions = require('../actions/AppActions.js');
 var AppStore = require('../stores/AppStore.js');
 var AddForm = require('./AddForm.js');
+var VideoList = require('./VideosList.js');
 
 function getAppState(){
 	return {
@@ -19840,7 +19847,8 @@ var App = React.createClass({displayName: "App",
 		console.log(this.state.videos);
 		return(
 			React.createElement("div", null, 
-				React.createElement(AddForm, null)
+				React.createElement(AddForm, null), 
+				React.createElement(VideoList, {videos: this.state.videos})
 			)
 		);
 	},
@@ -19853,12 +19861,55 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App;
 
-},{"../actions/AppActions.js":164,"../stores/AppStore.js":170,"./AddForm.js":165,"react":163}],167:[function(require,module,exports){
+},{"../actions/AppActions.js":164,"../stores/AppStore.js":172,"./AddForm.js":165,"./VideosList.js":168,"react":163}],167:[function(require,module,exports){
+var React = require('react');
+var AppActions = require('../actions/AppActions.js');
+var AppStore = require('../stores/AppStore.js');
+
+var Video = React.createClass({displayName: "Video",
+    render: function(){
+        var link = 'https://www.youtube.com/embed/' + this.props.video.video_id + '';
+        return(
+            React.createElement("div", {className: "col-md-4"}, 
+                React.createElement("h3", null, this.props.video.title), 
+                React.createElement("iframe", {width: "360", height: "285", src: link, frameborder: "0", allowfullscreen: true}), 
+                React.createElement("p", null, this.props.video.description)
+            )
+        );
+    }
+});
+
+module.exports = Video;
+},{"../actions/AppActions.js":164,"../stores/AppStore.js":172,"react":163}],168:[function(require,module,exports){
+var React = require('react');
+var AppActions = require('../actions/AppActions.js');
+var AppStore = require('../stores/AppStore.js');
+var Video = require('./Video.js');
+
+var VideosList = React.createClass({displayName: "VideosList",
+    render: function () {
+        return (
+            React.createElement("div", {className: "row text-center"}, 
+                
+                    this.props.videos.map(function (video, index) {
+                        return (
+                            React.createElement(Video, {video: video, key: index})
+                        )
+                    })
+                
+            )
+        );
+    }
+});
+
+module.exports = VideosList;
+},{"../actions/AppActions.js":164,"../stores/AppStore.js":172,"./Video.js":167,"react":163}],169:[function(require,module,exports){
 module.exports = {
-    SAVE_VIDEO: 'SAVE_VIDEO'
+    SAVE_VIDEO: 'SAVE_VIDEO',
+    RECEIVE_VIDEO: 'RECEIVE_VIDEO'
 }
 
-},{}],168:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
 var assign = require('object-assign');
 
@@ -19874,19 +19925,20 @@ var AppDispatcher = assign(new Dispatcher(),{
 
 module.exports = AppDispatcher;
 
-},{"flux":29,"object-assign":32}],169:[function(require,module,exports){
+},{"flux":29,"object-assign":32}],171:[function(require,module,exports){
 var App = require('./components/App');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var AppAPI = require('./utils/appAPI.js');
 
+AppAPI.getVideos();
 
 ReactDOM.render(
 	React.createElement(App, null),
 	document.getElementById('app')
 );
 
-},{"./components/App":166,"./utils/appAPI.js":172,"react":163,"react-dom":34}],170:[function(require,module,exports){
+},{"./components/App":166,"./utils/appAPI.js":174,"react":163,"react-dom":34}],172:[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var AppConstants = require('../constants/AppConstants');
 var EventEmitter = require('events').EventEmitter;
@@ -19933,6 +19985,15 @@ AppDispatcher.register(function(payload){
 
 			// Emit change
 			AppStore.emit(CHANGE_EVENT);
+
+		case AppConstants.RECEIVE_VIDEOS:
+			console.log('Receiving videos...');
+
+			// Set Videos
+			AppStore.setVideos(action.videos);
+
+			// Emit change
+			AppStore.emit(CHANGE_EVENT);
 	}
 
 	return true;
@@ -19940,7 +20001,7 @@ AppDispatcher.register(function(payload){
 
 module.exports = AppStore;
 
-},{"../constants/AppConstants":167,"../dispatcher/AppDispatcher":168,"../utils/AppAPI.js":171,"events":1,"object-assign":32}],171:[function(require,module,exports){
+},{"../constants/AppConstants":169,"../dispatcher/AppDispatcher":170,"../utils/AppAPI.js":173,"events":1,"object-assign":32}],173:[function(require,module,exports){
 var AppActions = require('../actions/AppActions');
 
 module.exports = {
@@ -19954,12 +20015,28 @@ module.exports = {
 			crossDomain: true,
 		})
 		.done(function( msg ) {
-			alert( "Data Saved: " + msg );
+			console.log( "Data Saved " + msg );
 		});
-	}
+	},
+
+    getVideos: function() {
+        $.get( "http://localhost/youtubegalleryapi/web/app_dev.php/api/get_videos", function(data) {
+            var videos = [];
+            console.log(data);
+            data.forEach(function(data) {
+                var video = {
+                    title: data.title,
+                    video_id: data.video_id,
+                    description: data.description
+                }
+                videos.push(video);
+                AppActions.receiveVideos(videos);
+            });
+        });
+    }
 }
 
-},{"../actions/AppActions":164}],172:[function(require,module,exports){
+},{"../actions/AppActions":164}],174:[function(require,module,exports){
 var AppActions = require('../actions/AppActions');
 
 module.exports = {
@@ -19973,9 +20050,25 @@ module.exports = {
 			crossDomain: true,
 		})
 		.done(function( msg ) {
-			alert( "Data Saved: " + msg );
+			console.log( "Data Saved " + msg );
 		});
-	}
+	},
+
+    getVideos: function() {
+        $.get( "http://localhost/youtubegalleryapi/web/app_dev.php/api/get_videos", function(data) {
+            var videos = [];
+            console.log(data);
+            data.forEach(function(data) {
+                var video = {
+                    title: data.title,
+                    video_id: data.video_id,
+                    description: data.description
+                }
+                videos.push(video);
+                AppActions.receiveVideos(videos);
+            });
+        });
+    }
 }
 
-},{"../actions/AppActions":164}]},{},[169]);
+},{"../actions/AppActions":164}]},{},[171]);
